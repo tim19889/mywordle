@@ -1,18 +1,18 @@
+import logo from './logo.svg';
+import './App.css';
+
 import React, { useState } from "https://cdn.skypack.dev/react";
 import ReactDOM from "https://cdn.skypack.dev/react-dom";
 import useStateInCustomProperties from "https://cdn.skypack.dev/use-state-in-custom-properties";
 import $ from "jquery"
 
-const timerMinutes = 1;
-const timerSeconds = "00";
+let runStatus = 0;
+let interval;
 const letterArr = [];
 let row1Arr = [];
 let row2Arr = [];
 let row3Arr = [];
 let row4Arr = [];
-
-
-
 
 class MyWordle extends React.Component {
   
@@ -21,6 +21,8 @@ class MyWordle extends React.Component {
     super(props);
     
     this.state = {
+      timerMinutes: "01",
+      timerSeconds: "00",
       wordle: "",
       row1Letters: [],
       row2Letters: [],
@@ -40,7 +42,40 @@ class MyWordle extends React.Component {
   }
   
   restart = () => {
-    window.reload(true);
+    for (let i = 1; i < 5; i++) {
+      for (let j = 1; j < 6; j++) {
+      document.getElementById(`r${i}l${j}`).style.backgroundColor = "white";
+      }
+    }
+    clearInterval(interval);
+    interval = undefined;
+    winLoseDiv.style.transition = "all 0s";
+    document.getElementById("vowelHelpContainer").innerHTML = "Vowel";
+    document.getElementById("consonantHelpContainer").innerHTML = "Consonant";
+    document.getElementById("error").innerHTML = "";
+    $('#playBtn').prop('disabled', false);
+    $("#vowelHelpContainer").prop("disabled",false);
+    $("#consonantHelpContainer").prop("disabled",false);
+    $("#timeHelpContainer").prop("disabled",false);
+    runStatus = 0;
+    letterArr.splice(0);
+    row1Arr.splice(0);
+    row2Arr.splice(0);
+    row3Arr.splice(0);
+    row4Arr.splice(0);
+    this.setState({
+      timerMinutes: "01",
+      timerSeconds: "00",
+      wordle: "",
+      row1Letters: [],
+      row2Letters: [],
+      row3Letters: [],
+      row4Letters: [],
+      currentRow: 1,
+      winLoseMessage: "",
+      score: 10
+    })
+    winLoseDiv.classList.remove("show");
   }
   
   setWordle = () => {
@@ -48,9 +83,27 @@ class MyWordle extends React.Component {
     const error = document.getElementById("error");
     const keyPad = document.getElementById("keyPad");
     const lettersOnly = /^[a-zA-Z]+$/;
-    error.style.color = "red";
+    error.style.color = "red"; 
+    const runTimer = () => {
+      this.state.timerMinutes === "01" && this.state.timerSeconds === "00" ? this.setState({timerMinutes: "00"}) : null;
+      this.state.timerSeconds !== "00" ? this.setState({timerSeconds: this.state.timerSeconds -1}) : null;
+      this.state.timerSeconds === "00" ? this.setState({timerSeconds: 59}) : null;
+      this.state.timerSeconds < 10 ? this.setState({timerSeconds: "0" + this.state.timerSeconds}) : null;
+      
+      if (this.state.timerMinutes === "00" && this.state.timerSeconds === "00") {
+        clearInterval(interval);
+        interval = undefined;
+        winLoseDiv.classList.add("show");
+    this.setState({
+      winLoseMessage: `Time's up! Sorry, better luck next time. Wordle = ${this.state.wordle}`,
+      score: 0
+    })
+    winLoseDiv.style.backgroundColor = "#e32d2d";
+      }
     
-    if (error.innerHTML.length > 0) {error.innerHTML = ""}
+  }
+    
+    error.innerHTML.length > 0 ? error.innerHTML = "" : null;
     
     if (wordInput.value.length !== 5) {
       error.innerHTML = "Enter a word exactly 5 characters long."
@@ -65,44 +118,55 @@ class MyWordle extends React.Component {
       error.style.color = "blue";
       error.innerHTML = "Success. Wordle has been set."
       wordInput.value = "";
-      keyPad.style.display = "flex";
+      keyPad.style.zIndex = "0";
+      runStatus = 1;
       $('#playBtn').prop('disabled', true);
+      winLoseDiv.style.transition = "all 2s ease";
     }
+    
+    if (interval === undefined && runStatus === 1) {
+    interval = setInterval(function() {
+      runTimer()
+    }, 1000)
+    }
+    
   }
   
   handleChange = (event) => {
-    
+    if (this.state.wordle !== "") {
     switch (this.state.currentRow) {
       case 1:    
     letterArr.push(event.target.innerHTML);
     this.setState({
       row1Letters: letterArr
     });
-        if (letterArr.length > 5) {letterArr.pop()}
+        letterArr.length > 5 ? letterArr.pop() : null;
      break;
       case 2:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row2Letters: letterArr
     });
-        if (letterArr.length > 5) {letterArr.pop()}
+        letterArr.length > 5 ? letterArr.pop() : null;
         break;
       case 3:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row3Letters: letterArr
     });
-        if (letterArr.length > 5) {letterArr.pop()}
+        letterArr.length > 5 ? letterArr.pop() : null;
         break;
       case 4:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row4Letters: letterArr
     });
-        if (letterArr.length > 5) {letterArr.pop()}
+        letterArr.length > 5 ? letterArr.pop() : null;
         break;
           
     }
+    }
+  
   }
   
   deleteLetter() {
@@ -135,7 +199,8 @@ class MyWordle extends React.Component {
     const winLoseDiv = document.getElementById("winLoseDiv");
     const winLoseMessage = document.getElementById("winLoseMessage");
     
-    //This function gets called every time the Enter key is pressed, assuming 5 letters have been entered. It either marks the letters are green, yellow, or gray. 
+    //This function gets called every time the Enter key is pressed, assuming 5 letters have been entered. It either marks the letters as green, yellow, or gray. 
+    if (this.state.wordle !== "") {
     function setLetterBackground(currentLetterArr, wordle, currentRow) {
       for (let i = 0; i < currentLetterArr.length; i++) {
        
@@ -194,47 +259,59 @@ class MyWordle extends React.Component {
   if (row1Arr.join("") === this.state.wordle || row2Arr.join("") === this.state.wordle || row3Arr.join("") === this.state.wordle || row4Arr.join("") === this.state.wordle) {
    winLoseDiv.classList.add("show");
     this.setState({
-      winLoseMessage: "Congratulations, you won!"
+      winLoseMessage: `Congratulations, you won! Wordle = ${this.state.wordle}`
     })
+    winLoseDiv.style.backgroundColor = "lightgreen";
+    clearInterval(interval)
+    interval = undefined;
   }
   else if (this.state.currentRow === 4 && row4Arr.join("") !== this.state.wordle) {
     winLoseDiv.classList.add("show");
     this.setState({
-      winLoseMessage: "Sorry, better luck next time.",
+      winLoseMessage: `Sorry, better luck next time. Wordle = ${this.state.wordle}`,
       score: 0
     })
     winLoseDiv.style.backgroundColor = "#e32d2d";
+    clearInterval(interval);
+    interval = undefined;
   }
+    }
   }
   
  helps = (event) => {
+   const allPlayedLettersArr = row1Arr.concat(row2Arr).concat(row3Arr).concat(row4Arr);
+   console.log(allPlayedLettersArr)
    const vowels = ["A", "E", "I", "O", "U"];
-   const vowelsinword = this.state.wordle.split("").filter((letter) => {return vowels.includes(letter)});
+   const vowelsinword = this.state.wordle.split("").filter((letter) => {return vowels.includes(letter) && !allPlayedLettersArr.includes(letter)});
    const randomVowel = Math.floor(Math.random() * vowelsinword.length)
-   const consonantsinword = this.state.wordle.split("").filter((letter) => {return !vowels.includes(letter)});
+   const consonantsinword = this.state.wordle.split("").filter((letter) => {return !vowels.includes(letter) && !allPlayedLettersArr.includes(letter)});
    const randomConsonant = Math.floor(Math.random() * consonantsinword.length);
    
    const vowelHelpContainer = document.getElementById("vowelHelpContainer");
    const consonantHelpContainer = document.getElementById("consonantHelpContainer");
    const timeHelpContainer = document.getElementById("timeHelpContainer");
+   
    if (this.state.wordle !== "") {
  switch (event.target.id) {
    case "vowelHelpContainer":
-     vowelHelpContainer.innerHTML = vowelsinword[randomVowel];
+     vowelsinword[randomVowel] === undefined ? vowelHelpContainer.innerHTML = "No unplayed vowels" : vowelHelpContainer.innerHTML = vowelsinword[randomVowel];
       $("#vowelHelpContainer").prop("disabled",true);
      this.setState({
       score: this.state.score - 0.5
     });
      break;   
      case "consonantHelpContainer":
-     consonantHelpContainer.innerHTML = consonantsinword[randomConsonant];
+     consonantsinword[randomConsonant] === undefined ? consonantHelpContainer.innerHTML = "No unplayed consonants" : consonantHelpContainer.innerHTML = consonantsinword[randomConsonant];
      $("#consonantHelpContainer").prop("disabled",true);
      this.setState({
       score: this.state.score - 0.5
     });
      break; 
      case "timeHelpContainer":
-     timeHelpContainer.innerHTML = "30";
+     this.state.timerSeconds < 10 ? this.setState({timerSeconds: parseInt(this.state.timerSeconds[1]) + 30}) : null;
+    this.state.timerSeconds < 30 && this.state.timerSeconds > 9 ? this.setState({timerSeconds: this.state.timerSeconds + 30}) : null;
+     this.state.timerSeconds >= 31 ? this.setState({timerMinutes: "01", timerSeconds: this.state.timerSeconds + 30 - 60}) : null;
+     this.state.timerSeconds === 30 ? this.setState({timerMinutes: "00", timerSeconds: this.state.timerSeconds + 30 - 60}) : null;
      $("#timeHelpContainer").prop("disabled",true);
      this.setState({
       score: this.state.score - 0.5
@@ -260,11 +337,13 @@ render()
  </div>
       <div id="wordleBox">
         
-        <h2>Wordle 2.0</h2>
-        <p>Enter a 5 characeter word and click "Play".</p>
+        <h2 id="title">Wordle 2.0</h2>
+        <p id="instructions">Enter a 5 characeter word and click "Play".</p>
         <p id="error"></p>
-        <input id="wordInput" type="text" placeholder="Enter a 5 character word"></input>
-        <button id="playBtn" onClick={this.setWordle}>Play</button><h1 id="timer">{`${timerMinutes}:${timerSeconds}`}</h1>
+        <input id="wordInput" type="text" placeholder="Enter a 5 character word" autocomplete="off"></input>
+        <button id="playBtn" onClick={this.setWordle}>Play</button>
+        
+   <h1 id="timer">{`${this.state.timerMinutes}:${this.state.timerSeconds}`}</h1>
         <h3 id="hints">Helps</h3>
         <div id="helpsContainer">
           <button id="vowelHelpContainer" class="helpsContainers" onClick={this.helps}>Vowel</button>
@@ -293,7 +372,9 @@ render()
           <div id="r4l4" class="letters">{this.state.row4Letters[3]}</div>
           <div id="r4l5" class="letters">{this.state.row4Letters[4]}</div>
         </div>
+        
         <div id="keyPad">
+         
           <div id="q" class="keys" onClick={this.handleChange}>Q</div>
           <div id="w" class="keys" onClick={this.handleChange}>W</div>
           <div id="e" class="keys" onClick={this.handleChange}>E</div>
@@ -304,6 +385,7 @@ render()
           <div id="i" class="keys" onClick={this.handleChange}>I</div>
           <div id="o" class="keys" onClick={this.handleChange}>O</div>
           <div id="p" class="keys" onClick={this.handleChange}>P</div>
+          
           <div id="a" class="keys" onClick={this.handleChange}>A</div>
           <div id="s" class="keys" onClick={this.handleChange}>S</div>
           <div id="d" class="keys" onClick={this.handleChange}>D</div>
@@ -313,6 +395,7 @@ render()
           <div id="j" class="keys" onClick={this.handleChange}>J</div>
           <div id="k" class="keys" onClick={this.handleChange}>K</div>
           <div id="l" class="keys" onClick={this.handleChange}>L</div>
+          
           <div id="enter" class="keys" onClick={this.submitWord}>Enter</div>
           <div id="z" class="keys" onClick={this.handleChange}>Z</div>
           <div id="x" class="keys" onClick={this.handleChange}>X</div>
@@ -334,3 +417,7 @@ render()
 };
 
 ReactDOM.render(<MyWordle/>, document.getElementById('root'));
+
+export default MyWordle;
+
+
