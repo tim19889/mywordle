@@ -1,9 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 
-import React, { useState } from "https://cdn.skypack.dev/react";
-import ReactDOM from "https://cdn.skypack.dev/react-dom";
-import useStateInCustomProperties from "https://cdn.skypack.dev/use-state-in-custom-properties";
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import $ from "jquery"
 
 let runStatus = 0;
@@ -311,7 +310,7 @@ render()
         <h2 id="scoreMessage">{`Your final score is ${this.state.score} out of 10.`}</h2>
         <button id="playAgain" onClick={this.restart}>Play Again</button>
  </div>
-	<div id="flexContainer">
+	
       <div id="wordleBox">
         
         <h2 id="title">Wordle 2.0</h2>
@@ -384,7 +383,7 @@ render()
           <div id="delete" className="keys" onClick={this.deleteLetter}>[<span id="redX">x</span>]</div>
         </div>
       </div>
-	  </div>
+	  
   </div>
       
   
