@@ -13,6 +13,7 @@ let row1Arr = [];
 let row2Arr = [];
 let row3Arr = [];
 let row4Arr = [];
+ let winLoseDiv = document.getElementById("winLoseDiv");
 
 class MyWordle extends React.Component {
   
@@ -42,40 +43,7 @@ class MyWordle extends React.Component {
   }
   
   restart = () => {
-    for (let i = 1; i < 5; i++) {
-      for (let j = 1; j < 6; j++) {
-      document.getElementById(`r${i}l${j}`).style.backgroundColor = "white";
-      }
-    }
-    clearInterval(interval);
-    interval = undefined;
-    winLoseDiv.style.transition = "all 0s";
-    document.getElementById("vowelHelpContainer").innerHTML = "Vowel";
-    document.getElementById("consonantHelpContainer").innerHTML = "Consonant";
-    document.getElementById("error").innerHTML = "";
-    $('#playBtn').prop('disabled', false);
-    $("#vowelHelpContainer").prop("disabled",false);
-    $("#consonantHelpContainer").prop("disabled",false);
-    $("#timeHelpContainer").prop("disabled",false);
-    runStatus = 0;
-    letterArr.splice(0);
-    row1Arr.splice(0);
-    row2Arr.splice(0);
-    row3Arr.splice(0);
-    row4Arr.splice(0);
-    this.setState({
-      timerMinutes: "01",
-      timerSeconds: "00",
-      wordle: "",
-      row1Letters: [],
-      row2Letters: [],
-      row3Letters: [],
-      row4Letters: [],
-      currentRow: 1,
-      winLoseMessage: "",
-      score: 10
-    })
-    winLoseDiv.classList.remove("show");
+    window.location.reload(true);
   }
   
   setWordle = () => {
@@ -83,27 +51,35 @@ class MyWordle extends React.Component {
     const error = document.getElementById("error");
     const keyPad = document.getElementById("keyPad");
     const lettersOnly = /^[a-zA-Z]+$/;
-    error.style.color = "red"; 
+   
+	
     const runTimer = () => {
-      this.state.timerMinutes === "01" && this.state.timerSeconds === "00" ? this.setState({timerMinutes: "00"}) : null;
-      this.state.timerSeconds !== "00" ? this.setState({timerSeconds: this.state.timerSeconds -1}) : null;
-      this.state.timerSeconds === "00" ? this.setState({timerSeconds: 59}) : null;
-      this.state.timerSeconds < 10 ? this.setState({timerSeconds: "0" + this.state.timerSeconds}) : null;
+     if (this.state.timerMinutes === "01" && this.state.timerSeconds === "00") {
+    this.setState({timerMinutes: "00"});
+  }
+  
+  if (this.state.timerSeconds === "00") {
+    this.setState({timerSeconds: 59});
+  } else if (parseInt(this.state.timerSeconds) <= 10) {
+    this.setState({timerSeconds: "0" + (parseInt(this.state.timerSeconds) - 1)});
+  } else {
+    this.setState({timerSeconds: this.state.timerSeconds - 1});
+  }
       
       if (this.state.timerMinutes === "00" && this.state.timerSeconds === "00") {
         clearInterval(interval);
         interval = undefined;
-        winLoseDiv.classList.add("show");
+        document.getElementById("winLoseDiv").classList.add("show");
     this.setState({
       winLoseMessage: `Time's up! Sorry, better luck next time. Wordle = ${this.state.wordle}`,
       score: 0
     })
-    winLoseDiv.style.backgroundColor = "#e32d2d";
+   
       }
     
   }
     
-    error.innerHTML.length > 0 ? error.innerHTML = "" : null;
+    if (error.innerHTML.length > 0) {error.innerHTML = ""}
     
     if (wordInput.value.length !== 5) {
       error.innerHTML = "Enter a word exactly 5 characters long."
@@ -121,13 +97,13 @@ class MyWordle extends React.Component {
       keyPad.style.zIndex = "0";
       runStatus = 1;
       $('#playBtn').prop('disabled', true);
-      winLoseDiv.style.transition = "all 2s ease";
+      
     }
     
     if (interval === undefined && runStatus === 1) {
     interval = setInterval(function() {
       runTimer()
-    }, 1000)
+    }, 300)
     }
     
   }
@@ -140,28 +116,28 @@ class MyWordle extends React.Component {
     this.setState({
       row1Letters: letterArr
     });
-        letterArr.length > 5 ? letterArr.pop() : null;
+        if (letterArr.length > 5) {letterArr.pop()}
      break;
       case 2:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row2Letters: letterArr
     });
-        letterArr.length > 5 ? letterArr.pop() : null;
+        if (letterArr.length > 5) {letterArr.pop()}
         break;
       case 3:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row3Letters: letterArr
     });
-        letterArr.length > 5 ? letterArr.pop() : null;
+        if (letterArr.length > 5) {letterArr.pop()}
         break;
       case 4:
         letterArr.push(event.target.innerHTML);
     this.setState({
       row4Letters: letterArr
     });
-        letterArr.length > 5 ? letterArr.pop() : null;
+        if (letterArr.length > 5) {letterArr.pop()}
         break;
           
     }
@@ -308,10 +284,10 @@ class MyWordle extends React.Component {
     });
      break; 
      case "timeHelpContainer":
-     this.state.timerSeconds < 10 ? this.setState({timerSeconds: parseInt(this.state.timerSeconds[1]) + 30}) : null;
-    this.state.timerSeconds < 30 && this.state.timerSeconds > 9 ? this.setState({timerSeconds: this.state.timerSeconds + 30}) : null;
-     this.state.timerSeconds >= 31 ? this.setState({timerMinutes: "01", timerSeconds: this.state.timerSeconds + 30 - 60}) : null;
-     this.state.timerSeconds === 30 ? this.setState({timerMinutes: "00", timerSeconds: this.state.timerSeconds + 30 - 60}) : null;
+     if (this.state.timerSeconds < 10) {this.setState({timerSeconds: parseInt(this.state.timerSeconds[1]) + 30})}
+    if (this.state.timerSeconds < 30 && this.state.timerSeconds > 9) {this.setState({timerSeconds: this.state.timerSeconds + 30})}
+     if (this.state.timerSeconds >= 31) {this.setState({timerMinutes: "01", timerSeconds: this.state.timerSeconds + 30 - 60})}
+     if (this.state.timerSeconds === 30) {this.setState({timerMinutes: "00", timerSeconds: this.state.timerSeconds + 30 - 60})}
      $("#timeHelpContainer").prop("disabled",true);
      this.setState({
       score: this.state.score - 0.5
@@ -335,78 +311,80 @@ render()
         <h2 id="scoreMessage">{`Your final score is ${this.state.score} out of 10.`}</h2>
         <button id="playAgain" onClick={this.restart}>Play Again</button>
  </div>
+	<div id="flexContainer">
       <div id="wordleBox">
         
         <h2 id="title">Wordle 2.0</h2>
         <p id="instructions">Enter a 5 characeter word and click "Play".</p>
         <p id="error"></p>
-        <input id="wordInput" type="text" placeholder="Enter a 5 character word" autocomplete="off"></input>
+        <input id="wordInput" type="text" placeholder="Enter a 5 character word" autoComplete="off"></input>
         <button id="playBtn" onClick={this.setWordle}>Play</button>
         
    <h1 id="timer">{`${this.state.timerMinutes}:${this.state.timerSeconds}`}</h1>
         <h3 id="hints">Helps</h3>
         <div id="helpsContainer">
-          <button id="vowelHelpContainer" class="helpsContainers" onClick={this.helps}>Vowel</button>
-          <button id="consonantHelpContainer" class="helpsContainers" onClick={this.helps}>Consonant</button>
-          <button id="timeHelpContainer" class="helpsContainers" onClick={this.helps}>30 Seconds</button>
+          <button id="vowelHelpContainer" className="helpsContainers" onClick={this.helps}>Vowel</button>
+          <button id="consonantHelpContainer" className="helpsContainers" onClick={this.helps}>Consonant</button>
+          <button id="timeHelpContainer" className="helpsContainers" onClick={this.helps}>30 Seconds</button>
           </div>
         <div id="lettersContainer">
-          <div id="r1l1" class="letters">{this.state.row1Letters[0]}</div>
-          <div id="r1l2" class="letters">{this.state.row1Letters[1]}</div>
-          <div id="r1l3" class="letters">{this.state.row1Letters[2]}</div>
-          <div id="r1l4" class="letters">{this.state.row1Letters[3]}</div>
-          <div id="r1l5" class="letters">{this.state.row1Letters[4]}</div>
-          <div id="r2l1" class="letters">{this.state.row2Letters[0]}</div>
-          <div id="r2l2" class="letters">{this.state.row2Letters[1]}</div>
-          <div id="r2l3" class="letters">{this.state.row2Letters[2]}</div>
-          <div id="r2l4" class="letters">{this.state.row2Letters[3]}</div>
-          <div id="r2l5" class="letters">{this.state.row2Letters[4]}</div>
-          <div id="r3l1" class="letters">{this.state.row3Letters[0]}</div>
-          <div id="r3l2" class="letters">{this.state.row3Letters[1]}</div>
-          <div id="r3l3" class="letters">{this.state.row3Letters[2]}</div>
-          <div id="r3l4" class="letters">{this.state.row3Letters[3]}</div>
-          <div id="r3l5" class="letters">{this.state.row3Letters[4]}</div>
-          <div id="r4l1" class="letters">{this.state.row4Letters[0]}</div>
-          <div id="r4l2" class="letters">{this.state.row4Letters[1]}</div>
-          <div id="r4l3" class="letters">{this.state.row4Letters[2]}</div>
-          <div id="r4l4" class="letters">{this.state.row4Letters[3]}</div>
-          <div id="r4l5" class="letters">{this.state.row4Letters[4]}</div>
+          <div id="r1l1" className="letters">{this.state.row1Letters[0]}</div>
+          <div id="r1l2" className="letters">{this.state.row1Letters[1]}</div>
+          <div id="r1l3" className="letters">{this.state.row1Letters[2]}</div>
+          <div id="r1l4" className="letters">{this.state.row1Letters[3]}</div>
+          <div id="r1l5" className="letters">{this.state.row1Letters[4]}</div>
+          <div id="r2l1" className="letters">{this.state.row2Letters[0]}</div>
+          <div id="r2l2" className="letters">{this.state.row2Letters[1]}</div>
+          <div id="r2l3" className="letters">{this.state.row2Letters[2]}</div>
+          <div id="r2l4" className="letters">{this.state.row2Letters[3]}</div>
+          <div id="r2l5" className="letters">{this.state.row2Letters[4]}</div>
+          <div id="r3l1" className="letters">{this.state.row3Letters[0]}</div>
+          <div id="r3l2" className="letters">{this.state.row3Letters[1]}</div>
+          <div id="r3l3" className="letters">{this.state.row3Letters[2]}</div>
+          <div id="r3l4" className="letters">{this.state.row3Letters[3]}</div>
+          <div id="r3l5" className="letters">{this.state.row3Letters[4]}</div>
+          <div id="r4l1" className="letters">{this.state.row4Letters[0]}</div>
+          <div id="r4l2" className="letters">{this.state.row4Letters[1]}</div>
+          <div id="r4l3" className="letters">{this.state.row4Letters[2]}</div>
+          <div id="r4l4" className="letters">{this.state.row4Letters[3]}</div>
+          <div id="r4l5" className="letters">{this.state.row4Letters[4]}</div>
         </div>
         
         <div id="keyPad">
          
-          <div id="q" class="keys" onClick={this.handleChange}>Q</div>
-          <div id="w" class="keys" onClick={this.handleChange}>W</div>
-          <div id="e" class="keys" onClick={this.handleChange}>E</div>
-          <div id="r" class="keys" onClick={this.handleChange}>R</div>
-          <div id="t" class="keys" onClick={this.handleChange}>T</div>
-          <div id="y" class="keys" onClick={this.handleChange}>Y</div>
-          <div id="u" class="keys" onClick={this.handleChange}>U</div>
-          <div id="i" class="keys" onClick={this.handleChange}>I</div>
-          <div id="o" class="keys" onClick={this.handleChange}>O</div>
-          <div id="p" class="keys" onClick={this.handleChange}>P</div>
+          <div id="q" className="keys" onClick={this.handleChange}>Q</div>
+          <div id="w" className="keys" onClick={this.handleChange}>W</div>
+          <div id="e" className="keys" onClick={this.handleChange}>E</div>
+          <div id="r" className="keys" onClick={this.handleChange}>R</div>
+          <div id="t" className="keys" onClick={this.handleChange}>T</div>
+          <div id="y" className="keys" onClick={this.handleChange}>Y</div>
+          <div id="u" className="keys" onClick={this.handleChange}>U</div>
+          <div id="i" className="keys" onClick={this.handleChange}>I</div>
+          <div id="o" className="keys" onClick={this.handleChange}>O</div>
+          <div id="p" className="keys" onClick={this.handleChange}>P</div>
           
-          <div id="a" class="keys" onClick={this.handleChange}>A</div>
-          <div id="s" class="keys" onClick={this.handleChange}>S</div>
-          <div id="d" class="keys" onClick={this.handleChange}>D</div>
-          <div id="f" class="keys" onClick={this.handleChange}>F</div>
-          <div id="g" class="keys" onClick={this.handleChange}>G</div>
-          <div id="h" class="keys" onClick={this.handleChange}>H</div>
-          <div id="j" class="keys" onClick={this.handleChange}>J</div>
-          <div id="k" class="keys" onClick={this.handleChange}>K</div>
-          <div id="l" class="keys" onClick={this.handleChange}>L</div>
+          <div id="a" className="keys" onClick={this.handleChange}>A</div>
+          <div id="s" className="keys" onClick={this.handleChange}>S</div>
+          <div id="d" className="keys" onClick={this.handleChange}>D</div>
+          <div id="f" className="keys" onClick={this.handleChange}>F</div>
+          <div id="g" className="keys" onClick={this.handleChange}>G</div>
+          <div id="h" className="keys" onClick={this.handleChange}>H</div>
+          <div id="j" className="keys" onClick={this.handleChange}>J</div>
+          <div id="k" className="keys" onClick={this.handleChange}>K</div>
+          <div id="l" className="keys" onClick={this.handleChange}>L</div>
           
-          <div id="enter" class="keys" onClick={this.submitWord}>Enter</div>
-          <div id="z" class="keys" onClick={this.handleChange}>Z</div>
-          <div id="x" class="keys" onClick={this.handleChange}>X</div>
-          <div id="c" class="keys" onClick={this.handleChange}>C</div>
-          <div id="v" class="keys" onClick={this.handleChange}>V</div>
-          <div id="b" class="keys" onClick={this.handleChange}>B</div>
-          <div id="n" class="keys" onClick={this.handleChange}>N</div>
-          <div id="m" class="keys" onClick={this.handleChange}>M</div>
-          <div id="delete" class="keys" onClick={this.deleteLetter}>[<span id="redX">x</span>]</div>
+          <div id="enter" className="keys" onClick={this.submitWord}>Enter</div>
+          <div id="z" className="keys" onClick={this.handleChange}>Z</div>
+          <div id="x" className="keys" onClick={this.handleChange}>X</div>
+          <div id="c" className="keys" onClick={this.handleChange}>C</div>
+          <div id="v" className="keys" onClick={this.handleChange}>V</div>
+          <div id="b" className="keys" onClick={this.handleChange}>B</div>
+          <div id="n" className="keys" onClick={this.handleChange}>N</div>
+          <div id="m" className="keys" onClick={this.handleChange}>M</div>
+          <div id="delete" className="keys" onClick={this.deleteLetter}>[<span id="redX">x</span>]</div>
         </div>
       </div>
+	  </div>
   </div>
       
   

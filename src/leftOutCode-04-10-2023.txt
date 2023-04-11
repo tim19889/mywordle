@@ -1,0 +1,8 @@
+87
+error.style.color = "red"; 
+
+102
+winLoseDiv.style.backgroundColor = "#e32d2d";
+
+125
+winLoseDiv.style.transition = "all 2s ease";

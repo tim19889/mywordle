@@ -1,3 +1,9 @@
+#flexContainer {
+display: flex;
+align-items: center;
+justify-content: center;
+height: 100vh;
+}
 #winLoseDiv {
   display: flex;
   align-items: center;
